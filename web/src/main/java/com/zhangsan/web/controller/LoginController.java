@@ -29,7 +29,7 @@ public class LoginController {
     private LoginService loginService;
 
     /**
-     * 用户注册 TODO
+     * 用户注册
      * @return
      */
     @PostMapping("/register")

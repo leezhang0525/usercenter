@@ -6,13 +6,19 @@ import com.google.common.net.HttpHeaders;
 import com.zhangsan.common.enums.ResultCode;
 import com.zhangsan.common.exception.ServiceException;
 import com.zhangsan.common.response.Result;
+import com.zhangsan.web.interceptor.ExcludePath;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.http.HttpServletResponse;
@@ -28,12 +34,18 @@ import java.util.List;
 @Lazy
 public class WebMvcConfig implements WebMvcConfigurer {
 
+    @Autowired
+    private List<HandlerInterceptor> interceptorList;
+
     /**
      * warn级别错误码列表
      */
     private static final List<Integer> WARN_LEVEL_CODE_LIST = Lists.newArrayList(ResultCode.SERVICE_EXCEPTION.getCode());
 
-    //统一异常处理
+    /**
+     * 统一异常处理
+     * @param exceptionResolvers
+     */
     @Override
     public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
         exceptionResolvers.add((request, response, handler, e) -> {
@@ -70,6 +82,24 @@ public class WebMvcConfig implements WebMvcConfigurer {
             response.getWriter().write(JSON.toJSONString(result));
         } catch (IOException e) {
             log.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 添加拦截器
+     * @param registry
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        for (HandlerInterceptor handlerInterceptor : interceptorList) {
+            log.info("add interceptor " + handlerInterceptor.getClass());
+            InterceptorRegistration interceptorRegistration = registry.addInterceptor(handlerInterceptor);
+            if (handlerInterceptor instanceof ExcludePath) {
+                List<String> excludePath = ((ExcludePath) handlerInterceptor).getExcludePath();
+                if (CollectionUtils.isNotEmpty(excludePath)) {
+                    interceptorRegistration.excludePathPatterns(excludePath.toArray(new String[excludePath.size()]));
+                }
+            }
         }
     }
 }

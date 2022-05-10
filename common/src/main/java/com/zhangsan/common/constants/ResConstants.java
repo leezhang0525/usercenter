@@ -13,4 +13,6 @@ public class ResConstants {
     public static final String MSG_LOGIN_TYPE_EMPTY_ERROR = "登录类型不能为空";
     public static final String MSG_USERNAME_ERROR = "用户名错误";
     public static final String MSG_PASSWORD_ERROR = "密码错误";
+    public static final String MSG_USER_NOT_FOUND_ERROR = "用户不存在";
+    public static final String MSG_USER_NOT_LOGIN_ERROR = "用户未登录";
 }

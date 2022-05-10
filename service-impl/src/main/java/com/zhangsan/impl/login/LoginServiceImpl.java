@@ -48,7 +48,7 @@ public class LoginServiceImpl implements LoginService {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = requestAttributes.getRequest();
         HttpSession session = request.getSession();
-        session.setAttribute("user",userId);
+        session.setAttribute("user",user);
         return userId;
     }
 
@@ -57,7 +57,10 @@ public class LoginServiceImpl implements LoginService {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = requestAttributes.getRequest();
         HttpSession session = request.getSession();
-        String userId =(String) session.getAttribute("user");
-        return userId;
+        TUser user =(TUser) session.getAttribute("user");
+        if(user == null){
+            throw new ServiceException(ResConstants.MSG_USER_NOT_FOUND_ERROR);
+        }
+        return user.getId().toString();
     }
 }
